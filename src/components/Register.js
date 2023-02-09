@@ -33,25 +33,52 @@ const Register = () => {
     setValidName(result);
   }, [user]);
 
-  useEffect(()=>{
-    const result= PWD_REGEX.test(pwd);
+  useEffect(() => {
+    const result = PWD_REGEX.test(pwd);
 
     console.log(result);
     console.log(pwd);
     setValidPwd(result);
 
     const match = pwd === matchPwd;
-    setValidMatch(match)
+    setValidMatch(match);
+  }, [pwd, matchPwd]);
 
-  },[pwd , matchPwd])
+  useEffect(() => {
+    setErrMsg("");
+  }, [user, pwd, matchPwd]);
 
-  useEffect(()=>{
-    setErrMsg('');
-  },[user,pwd,matchPwd])
-
-  return <section>
-    <p></p>
-  </section>;
+  return (
+    <section>
+      <p
+        ref={errRef}
+        className={errMsg ? "errmsg" : "offscreen"}
+        aria-live="assertive"
+      ></p>
+      <h1>Register</h1>
+      <form action="">
+        <label htmlFor="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          ref={userRef}
+          autoComplete="off"
+          onChange={(e) => setUser(e)}
+          required
+          aria-invalid={validName ? "false" : "true"}
+          aria-describedby="uidnote"
+          onFocus={() => setUserForcus(true)}
+          onBlur={() => setUserForcus(false)}
+        />
+        <p id="uidnote" className={userForcus && user &&!validName ? "instruction":"offscreen"}>
+           <i class="far fa-info-circle"></i>
+           4 to 24 character. <br/>
+           Must begin with a letter. <br/>
+           Letter,number, underscores,hyphens allowed.
+        </p>
+      </form>
+    </section>
+  );
 };
 
 export default Register;
