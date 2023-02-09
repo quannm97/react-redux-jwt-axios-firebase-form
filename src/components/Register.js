@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const USER_REGEX = /^[a-zA-Z][a-ZA-Z0-9]{3,23}$/;
+
+
+const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 const Register = () => {
@@ -23,13 +25,13 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    userRef.current.forcus();
+    userRef.current.focus();
   }, []);
 
   useEffect(() => {
-    const result = USER_REGEX.text(user);
+    const result = USER_REGEX.test(user);
     console.log(result);
-    console.log(result);
+    console.log(user);
     setValidName(result);
   }, [user]);
 
@@ -57,13 +59,21 @@ const Register = () => {
       ></p>
       <h1>Register</h1>
       <form action="">
-        <label htmlFor="username">Username:</label>
+        <label htmlFor="username">Username:
+        <span className={validName?"valid":"d-none"}>
+        <i className="fas fa-check"></i>
+        </span>
+        <span className={validName || !user ?"d-none":"invalid"}>
+        <i className="fas fa-times"></i>
+        </span>
+        </label>
         <input
           type="text"
           id="username"
           ref={userRef}
           autoComplete="off"
-          onChange={(e) => setUser(e)}
+          value={user}
+          onChange={(e) => setUser(e.target.value)}
           required
           aria-invalid={validName ? "false" : "true"}
           aria-describedby="uidnote"
@@ -71,7 +81,7 @@ const Register = () => {
           onBlur={() => setUserForcus(false)}
         />
         <p id="uidnote" className={userForcus && user &&!validName ? "instruction":"offscreen"}>
-           <i class="far fa-info-circle"></i>
+           <i className="far fa-info-circle"></i>
            4 to 24 character. <br/>
            Must begin with a letter. <br/>
            Letter,number, underscores,hyphens allowed.
