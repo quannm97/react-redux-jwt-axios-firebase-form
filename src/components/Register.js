@@ -1,4 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "../api/axios";
+import instance from "../api/axios";
+import REGISTER_URL from "../api/axios";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{4,24}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -53,23 +56,49 @@ const Register = () => {
     e.preventDefault();
     //no hack please
     const v1=USER_REGEX.test(user);
-    const v2=PWD_REGEX.text(pwd);
+    const v2=PWD_REGEX.test(pwd);
     if(!v1||!v2){
       setErrMsg("Invalid Entry");
       return;
     }
-    console.log(user,pwd);
-    setSuccess(true);
+    try {
+      const respone= await instance.post("/results.json",
+        JSON.stringify({user,pwd}),
+        );
+        console.log(respone.data);
+        console.log(respone.accessToken);
+        console.log(JSON.stringify(respone));
+        setSuccess(true);
+    } catch (err) {
+        if(!err?.respone){
+          setErrMsg('No Server Response');
+        } else if (err.respone?.status===409){
+          setErrMsg('Username Taken');
+        } else {
+          setErrMsg('Registration Failed')
+        }
+        errRef.current.focus();
+    }
+    
   }
   return (
-    <section>
+    <>
+    {success ?(
+      <section>
+        <h1>Success!</h1>
+        <p>
+          <a href="#">Sign in</a>
+        </p>
+      </section>
+    ):
+      (<section>
       <p
         ref={errRef}
         className={errMsg ? "errmsg" : "offscreen"}
         aria-live="assertive"
-      ></p>
+        ></p>
       <h1>Register</h1>
-      <form onSubmit={handleSubmit()}>
+      <form onSubmit={handleSubmit}>
         <label htmlFor="username">
           Username:
           <span className={validName ? "valid" : "d-none"}>
@@ -97,7 +126,7 @@ const Register = () => {
           className={
             userFocus && user && !validName ? "instruction" : "offscreen"
           }
-        >
+          >
           <i className="far fa-info-circle"></i>
           4 to 24 character. <br />
           Must begin with a letter. <br />
@@ -125,7 +154,7 @@ const Register = () => {
         />
         <p
           id="pwdnote"
-          className={pwdFocus || validPwd ? "instruction" : "offscreen"}
+          className={pwdFocus && !validPwd ? "instruction" : "offscreen"}
         >
           <i className="far fa-info-circle"></i>
           8 to 24 characters.
@@ -185,7 +214,8 @@ const Register = () => {
           <a href="#">Sign in</a>
         </span>
       </p>
-    </section>
+    </section>)}
+          </>
   );
 };
 
